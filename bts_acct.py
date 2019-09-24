@@ -3,6 +3,8 @@ import datetime
 import time
 import emoji
 
+git init
+
 consumer_key = "0Mily48PNIlHZ6XpD7xTbIvn3"
 consumer_secret = "gIhQdvo2FoI0VgpmtTLxjFWXA0BFmMopIRKmB8HcxcIYh4EuZQ"
 access_token = "1173765313323773952-Ngg7n5Hmr2kETxR7NqADJp6nLLIX9M"
