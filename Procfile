@@ -1,1 +1,1 @@
-worker: python bts_acct.py
+web: gunicorn bts_acct.py
