@@ -16,16 +16,16 @@ from googletrans import Translator
 translator = Translator(service_urls=[
       'translate.google.co.kr',
     ])
+
+bts_timeline = api.user_timeline("BTS_twt")
+me_timeline = api.user_timeline(1173765313323773952)
+
+n = 0
+#last_tweet_time = datetime.datetime(2019,9,10)
+last_tweet_time = me_timeline[n].created_at
+
 def translate_BTS():
     print("creating BTS translation...")
-
-    bts_timeline = api.user_timeline("BTS_twt")
-    me_timeline = api.user_timeline(1173765313323773952)
-
-    n = 0
-    #last_tweet_time = datetime.datetime(2019,9,10)
-    last_tweet_time = me_timeline[n].created_at
-
 
     for tweets in reversed(bts_timeline):
         if last_tweet_time < tweets.created_at:
@@ -68,6 +68,8 @@ def translate_BTS():
         if tweets.favorited is False:
             tweets.favorite()
 
-while True:
+while last_tweet_time < bts_timeline[0].created_at:
     translate_BTS()
     time.sleep(500)
+else:
+    print("no new BTS tweets :(")
