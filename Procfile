@@ -1,1 +1,1 @@
-web gunicorn bts_bot.py:app
+web: gunicorn bts_bot:app
