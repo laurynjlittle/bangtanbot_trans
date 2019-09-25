@@ -1,1 +1,1 @@
-web: python bts_acct.py
+worker: python bts_acct.py
