@@ -1,1 +1,1 @@
-web: gunicorn bts_acct:app
+web: python bts_acct.py
