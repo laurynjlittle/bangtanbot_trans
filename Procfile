@@ -1,1 +1,1 @@
-web: python bts_acct.py
+bot: python bts_acct.py
