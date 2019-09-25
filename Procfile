@@ -1,1 +1,1 @@
-web: python bts_acct.py $PORT
+web: python bts_acct.py
