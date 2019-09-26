@@ -70,7 +70,7 @@ def translate_BTS():
 
 while last_tweet_time < bts_timeline[0].created_at:
     translate_BTS()
-    time.sleep(360)
+    time.sleep(3600)
 else:
     print("no new BTS tweets :(")
-    time.sleep(360)
+    time.sleep(3600)
