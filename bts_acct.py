@@ -54,7 +54,7 @@ def emojis_BTS():
                 twt = twt.replace("-", "#")
                 twt = twt.replace("# ", "#")
                 url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
-                #api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
+                api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
                 print(twt)
                 print("translated exception!")
             except Exception:
