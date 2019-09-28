@@ -13,79 +13,79 @@ auth.set_access_token(access_token, access_secret)
 api = tp.API(auth)
 
 from googletrans import Translator
-translator = Translator(service_urls=[
-      'translate.google.co.kr',
-    ])
+translator = Translator()
+from langdetect import detect
 
 bts_timeline = api.user_timeline("BTS_twt")
 me_timeline = api.user_timeline(1173765313323773952)
 
 n = 0
-#last_tweet_time = datetime.datetime(2019,9,10)
 last_tweet_time = me_timeline[n].created_at
 
-def emojis_BTS():
-    #handle emojis in tweets that break translation
-    print("processing translation exception...")
-    for tweets in reversed(bts_timeline):
-        if last_tweet_time < tweets.created_at:
-            try:
-                if tweets.entities["urls"] != "":
-                    txt_b4_img = tweets.text.find("https://")
-                else:
-                    txt_b4_img = len(tweets.text)
-                twt = emoji.demojize(tweets.text[:txt_b4_img])
-                print(twt)
-                counter = twt.count(":")
-                twt = twt_tx.replace("#", "-")
-                translation = translator.translate(twt, dest="en")
-                twt = emoji.emojize(translation.text)
-                m = 0
-                for c in range(1, counter+1):
-                    p = twt[m:].index(":")
-                    if c % 2 == 0:
-                        twt = twt[:p + m+1] + twt[p+ m+1:]
-                        m = p + m+ 1
-                    else:
-                        twt = twt[:p + m] + " :" + twt[p + m +2:]
-                        m = p + m + 2
-                print(twt)
-                twt = emoji.emojize(twt)
-                twt = twt.replace("-", "#")
-                twt = twt.replace("# ", "#")
-                url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
-                api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
-                print(twt)
-                print("translated exception!")
-            except Exception:
-                print("error")
-
 def translate_BTS():
-    print("creating BTS translation...")
-
     for tweets in reversed(bts_timeline):
+        twt_id = tweets.id
         if last_tweet_time < tweets.created_at:
-        #if BTS tweet was posted after my last retweet and there is no media file
-            try:
+            #if tweet is in English
+            if detect(tweets.text) == 'en':
+                print("tweet is in English - no translation needed")
                 if tweets.entities["urls"] != "":
                     txt_b4_img = tweets.text.find("https://")
+                    twt = tweets.text[:txt_b4_img]
+                    print(twt)
                 else:
                     txt_b4_img = len(tweets.text)
-                twt_tx = tweets.text[:txt_b4_img]
-                print(twt_tx)
-                twt = twt_tx.replace("#", "-")
-                translation = translator.translate(twt, dest='en')
-                twt = translation.text
-                twt = twt.replace("-", "#")
-                twt = twt.replace("# ", "#")
-                url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
-                api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
-                print(twt)
-                print("translated tweet - no problem!")
-                n = n + 1
-            except Exception:
-            #handle emojis in tweets that break translation
-                  emojis_BTS()
+                    twt = tweets.text[:txt_b4_img]
+                    print(twt)
+            #if tweet is not in English
+            else:
+                print("creating BTS translation...")
+                try:
+                    if tweets.entities["urls"] != "":
+                        txt_b4_img = tweets.text.find("https://")
+                    else:
+                        txt_b4_img = len(tweets.text)
+                    twt = tweets.text[:txt_b4_img]
+                    print(twt)
+                    twt = twt.replace("#", "-")
+                    translation = translator.translate(twt, dest='en')
+                    twt = translation.text
+                    twt = twt.replace("-", "#")
+                    twt = twt.replace("# ", "#")
+                    url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
+                    #api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
+                    print(twt)
+                    print("translated tweet - no problem!")
+                    n = n + 1
+                except Exception:
+                    print("processing translation exception...")
+                    try:
+                        twt = emoji.demojize(tweets.text[:txt_b4_img])
+                        counter = twt.count(":")
+                        print(twt)
+                        twt = twt.replace("#", "-")
+                        translation = translator.translate(twt, dest="en")
+                        print (twt)
+                        twt = emoji.emojize(translation.text)
+                        m = 0
+                        for c in range(1, counter+1):
+                            p = twt[m:].index(":")
+                            if c % 2 == 0:
+                                twt = twt[:p + m+1] + " " + twt[p+ m+1:]
+                                m = p + m+ 1
+                            else:
+                                twt = twt[:p + m] + " :" + twt[p + m +2:]
+                                m = p + m + 2
+                        print(twt)
+                        twt = emoji.emojize(twt)
+                        twt = twt.replace("-", "#")
+                        twt = twt.replace("# ", "#")
+                        url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
+                        #api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
+                        print(twt)
+                        print("translated exception!")
+                    except Exception:
+                        print("error")
 
 def like_BTS():
     for tweets in bts_timeline:
