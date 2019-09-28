@@ -27,7 +27,7 @@ def translate_BTS():
         twt_id = tweets.id
         if last_tweet_time < tweets.created_at:
             #if tweet is in English
-            if detect(tweets.text) == 'en':
+            if tweets.lang == 'en':
                 print("tweet is in English - no translation needed")
                 if tweets.entities["urls"] != "":
                     txt_b4_img = tweets.text.find("https://")
