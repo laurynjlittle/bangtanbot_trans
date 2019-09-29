@@ -55,11 +55,22 @@ def translate_BTS():
                     else:
                         twt = tweets.text
                     print(twt)
-                    twt = twt.replace("#", "-")
+                    #tweet translates hashtags weird remove and replace with hyphen and then replace back to hashtag
+                    for hashtags in tweets.entities["hashtags"]:
+                        #if hashtag is BTS name, don't translate
+                        if hashtags['text'].upper() in ("Jhope", "Namjoon", "RM", "Jin", "JK", "V", "Jungkook", "Taehyung", "Suga", "Yoongi").upper():
+                            twt = twt
+                        #else, translate hashtag and replace back into tweet with no whitespace
+                        else:
+                            hashtag_trans = translator.translate(hashtags['text']).text
+                            print(translator.translate(hashtags['text']).text)
+                            hashtag_index = hashtags['indices']
+                            print(hashtag_index)
+                            print(twt[hashtag_index[0]])
+                            twt = twt.replace("#" + hashtags['text'],"#" + (hashtag_trans.replace(" ","")))
+                    #translate tweet to english and store as new text
                     translation = translator.translate(twt, dest='en')
                     twt = translation.text
-                    twt = twt.replace("-", "#")
-                    twt = twt.replace("# ", "#")
                     url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
                     api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
                     print(twt)
@@ -71,6 +82,19 @@ def translate_BTS():
                     #try to remove emojis then translate then replace emojis before posting
                     try:
                         #remove emoji image and replace with emoji text instead
+                        for hashtags in tweets.entities["hashtags"]:
+                        #if hashtag is BTS name, don't translate
+                        if hashtags['text'].upper() in ("Jhope", "Namjoon", "RM", "Jin", "JK", "V", "Jungkook", "Taehyung", "Suga", "Yoongi").upper():
+                            twt = twt
+                        #else, translate hashtag and replace back into tweet with no whitespace
+                        else:
+                            hashtag_trans = translator.translate(hashtags['text']).text
+                            print(translator.translate(hashtags['text']).text)
+                            hashtag_index = hashtags['indices']
+                            print(hashtag_index)
+                            print(twt[hashtag_index[0]])
+                            twt = twt.replace("#" + hashtags['text'],"#" + (hashtag_trans.replace(" ","")))
+                        #remove emojis and store as new text    
                         twt = emoji.demojize(tweets.text[:txt_b4_img])
                         counter = twt.count(":")
                         twt = twt.replace("#", "-")
