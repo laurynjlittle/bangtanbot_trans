@@ -97,7 +97,6 @@ def translate_BTS():
                         #remove emojis and store as new text    
                         twt = emoji.demojize(tweets.text[:txt_b4_img])
                         counter = twt.count(":")
-                        twt = twt.replace("#", "-")
                         translation = translator.translate(twt, dest="en")
                         twt = emoji.emojize(translation.text)
                         m = 0
@@ -111,8 +110,6 @@ def translate_BTS():
                          #       m = p + m + 2
                         print(twt)
                         twt = emoji.emojize(twt)
-                        twt = twt.replace("-", "#")
-                        twt = twt.replace("# ", "#")
                         url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
                         api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
                         print(twt)
