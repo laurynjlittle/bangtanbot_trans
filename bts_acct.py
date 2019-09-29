@@ -25,27 +25,35 @@ last_tweet_time = me_timeline[n].created_at
 def translate_BTS():
     for tweets in reversed(bts_timeline):
         twt_id = tweets.id
+        #if BTS tweet is newer than the last time bot tweeted, go through nested loop to translate & post
         if last_tweet_time < tweets.created_at:
             #if tweet is in English
             if tweets.lang == 'en':
                 print("tweet is in English - no translation needed")
-                if tweets.entities["urls"] != "":
+                #if tweet has https link -- img then find index of https to remove from tweet text
+                if tweets.text.find("https://") >= 0:
                     txt_b4_img = tweets.text.find("https://")
                     twt = tweets.text[:txt_b4_img]
                     print(twt)
+                    url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
+                    api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
+                #else, if no https link, post tweet text as-is
                 else:
-                    txt_b4_img = len(tweets.text)
-                    twt = tweets.text[:txt_b4_img]
+                    twt = tweets.text
                     print(twt)
-            #if tweet is not in English
+                    url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
+                    api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
+            #if tweet is not in English, then run translation
             else:
                 print("creating BTS translation...")
+                print(tweets.text)
+                #try to remove https link -- img to clean up tweet to text only
                 try:
-                    if tweets.entities["urls"] != "":
+                    if tweets.text.find("https://") >= 0:
                         txt_b4_img = tweets.text.find("https://")
+                        twt = tweets.text[:txt_b4_img]
                     else:
-                        txt_b4_img = len(tweets.text)
-                    twt = tweets.text[:txt_b4_img]
+                        twt = tweets.text
                     print(twt)
                     twt = twt.replace("#", "-")
                     translation = translator.translate(twt, dest='en')
@@ -53,35 +61,36 @@ def translate_BTS():
                     twt = twt.replace("-", "#")
                     twt = twt.replace("# ", "#")
                     url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
-                    #api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
+                    api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
                     print(twt)
                     print("translated tweet - no problem!")
                     n = n + 1
+                #exception code if translation attempt breaks on emojis
                 except Exception:
                     print("processing translation exception...")
+                    #try to remove emojis then translate then replace emojis before posting
                     try:
+                        #remove emoji image and replace with emoji text instead
                         twt = emoji.demojize(tweets.text[:txt_b4_img])
                         counter = twt.count(":")
-                        print(twt)
                         twt = twt.replace("#", "-")
                         translation = translator.translate(twt, dest="en")
-                        print (twt)
                         twt = emoji.emojize(translation.text)
                         m = 0
-                        for c in range(1, counter+1):
-                            p = twt[m:].index(":")
-                            if c % 2 == 0:
-                                twt = twt[:p + m+1] + " " + twt[p+ m+1:]
-                                m = p + m+ 1
-                            else:
-                                twt = twt[:p + m] + " :" + twt[p + m +2:]
-                                m = p + m + 2
+                        #for c in range(1, counter+1):
+                         #   p = twt[m:].index(":")
+                         #   if c % 2 == 0:
+                         #       twt = twt[:p + m+1] + " " + twt[p+ m+1:]
+                         #       m = p + m+ 1
+                         #   else:
+                         #       twt = twt[:p + m] + " :" + twt[p + m +2:]
+                         #       m = p + m + 2
                         print(twt)
                         twt = emoji.emojize(twt)
                         twt = twt.replace("-", "#")
                         twt = twt.replace("# ", "#")
                         url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
-                        #api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
+                        api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
                         print(twt)
                         print("translated exception!")
                     except Exception:
