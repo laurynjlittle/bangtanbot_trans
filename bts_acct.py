@@ -55,7 +55,9 @@ def translate_BTS():
                     else:
                         twt = tweets.text
                     print(twt)
-                    #tweet translates hashtags weird remove and replace with hyphen and then replace back to hashtag
+                    #remove emoji characters from tweet
+                    twt = emoji.demojize(twt)
+                    #tweet translates hashtags weird, translate hashtags individually and replace back into tweet
                     for hashtags in tweets.entities["hashtags"]:
                         #if hashtag is BTS name, don't translate
                         BTS_names = ("JIMIN","JHOPE", "NAMJOON", "RM", "JIN", "JK", "V", "JUNGKOOK", "TAEHYUNG", "SUGA", "YOONGI")
@@ -63,63 +65,47 @@ def translate_BTS():
                             twt = twt
                         #else, translate hashtag and replace back into tweet with no whitespace
                         else:
-                            print(hashtags['text'])
                             hashtag_trans = translator.translate(hashtags['text']).text
-                            print(hashtag_trans)
                             hashtag_index = hashtags['indices']
                             twt = twt.replace("#" + hashtags['text'],"#" + (hashtag_trans.replace(" ","")))
                             print(twt)
-                    #variable replace hashtags so they aren't translated again
-                    #match tweet for '#' and add to hashtag list to store, and replace with T + number(T0, T1, etc.), then add back into tweet after translation
-                    VAR, REPL = re.compile(r'#(\w+)'), re.compile(r'_H(\d+)_')
+                    #variable replace hashtags and emojis so they aren't translated
+                    #match tweet for '#' or ":" and add to hashtag/emoji list to store, and replace with H or E + number(H0, H1, etc.), then add back into tweet after translation
+                    HVAR, HREPL = re.compile(r'#(\w+)'), re.compile(r'_H(\d+)_') #replace/restore for hashtag
+                    EVAR, EREPL = re.compile(r':(\w+):'), re.compile(r'_E(\d+)_') #replace/restore for emojis
                     hashtag_list = []
-                    #replace function stores hashtag in list and replaces hashtag in tweet with number
-                    def replace(hashtag):
+                    emoji_list = []
+                    #replace function stores hashtag in list and replaces with H0, H1, etc.
+                    def h_replace(hashtag):
                         hashtag_list.append(hashtag.group())
                         return "_H%d_" %(len(hashtag_list)-1)
-                    #restore function returns original hashtag back to tweet where T + number was placed
-                    def restore(hashtag):
+                    #restore function returns original hashtag back to tweet where H + number was placed
+                    def h_restore(hashtag):
                         return hashtag_list[int(hashtag.group(1))]
-                    twt = VAR.sub(replace, twt)
+                    #replace function stores emoji text in list and replaces emoji in tweet with E0, E1, etc.
+                    def emoji_replace(emoji):
+                        emoji_list.append(emoji.group())
+                        return "_E%d_" %(len(emoji_list)-1)
+                    #restore function returns original emoji text back to tweet where E + number was placed
+                    def emoji_restore(emoji):
+                        return emoji_list[int(emoji.group(1))]
+                    #replace hashtag/emoji with placeholder text that wont be translated
+                    twt = HVAR.sub(h_replace, twt)
+                    twt = EVAR.sub(emoji_replace, twt)
+                    #translate tweet, ignoring placeholders for emoji and hashtags
                     twt_trans = translator.translate(twt, dest = 'en').text
-                    twt = REPL.sub(restore, twt_trans)
-                    url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
-                    api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
+                    #return tweet to normal and replace emoji/hashtags back from placeholders
+                    twt = HREPL.sub(h_restore, twt_trans)
+                    twt = EREPL.sub(emoji_restore, twt_trans)
+                    #add emojis characters back to tweet
+                    twt = emoji.emojize(twt)
+                    url = ("https://twitter.com/BTS_twt/status/" + str(tweets.id))
+                    #api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
                     print(twt)
                     print("translated tweet - no problem!")
-                #exception code if translation attempt breaks on emojis
-                except Exception:
-                    print("processing translation exception...")
-                    #try to remove emojis then translate then replace emojis before posting
-                    try:
-                     #remove emoji image and replace with emoji text instead
-                        twt = emoji.demojize(twt)
-                        #variable replace hashtags so they aren't translated again
-                        #match tweet for ':' and add to emoji list to store, and replace with T + number(T0, T1, etc.), then add back into tweet after translation
-                        EVAR, EREPL = re.compile(r':(\w+):'), re.compile(r'_E(\d+)_')
-                        emoji_list = []
-                        #replace function stores emoji text in list and replaces emoji in tweet with number
-                        def replace(emoji):
-                            emoji_list.append(emoji.group())
-                            return "_E%d_" %(len(emoji_list)-1)
-                        #restore function returns original emoji text back to tweet where T + number was placed
-                        def restore(emoji):
-                            return emoji_list[int(emoji.group(1))]
-                        twt = EVAR.sub(replace, twt)
-                        print(emoji_list)
-                        print(twt)
-                        twt_trans = translator.translate(twt, dest = 'en').text
-                        twt = EREPL.sub(restore, twt_trans)
-                        twt = emoji.emojize(twt)
-                        #if tweets also has hashtags, then replace & restore as well
-                        print(twt)
-                        url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
-                        api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
-                        print(twt)
-                        print("translated exception!")
-                    except Exception:
-                        print("error")
-
+                except exception:
+                    print("error tweeting - try again")
+             
 def like_BTS():
     for tweets in bts_timeline:
         if tweets.favorited is False:
