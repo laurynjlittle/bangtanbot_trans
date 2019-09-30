@@ -103,7 +103,7 @@ def translate_BTS():
                     api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
                     print(twt)
                     print("translated tweet - no problem!")
-                except exception:
+                except Exception:
                     print("error tweeting - try again")
              
 def like_BTS():
