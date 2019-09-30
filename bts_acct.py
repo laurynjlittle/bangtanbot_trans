@@ -93,7 +93,7 @@ def translate_BTS():
                     twt = HVAR.sub(h_replace, twt)
                     twt = EVAR.sub(emoji_replace, twt)
                     #translate tweet, ignoring placeholders for emoji and hashtags
-                    twt_trans = translator.translate(twt, dest = 'en').text
+                    twt_trans = translator.translate(twt, src='ko', dest = 'en').text
                     #return tweet to normal and replace emoji/hashtags back from placeholders
                     twt = HREPL.sub(h_restore, twt_trans)
                     twt = EREPL.sub(emoji_restore, twt_trans)
