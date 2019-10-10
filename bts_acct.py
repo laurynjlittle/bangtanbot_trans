@@ -21,13 +21,15 @@ bts_timeline = api.user_timeline("BTS_twt")
 me_timeline = api.user_timeline(1173765313323773952)
 
 n = 0
+last_tweet = 0
 last_tweet_time = me_timeline[n].created_at
 
 def translate_BTS():
+    global last_tweet
     for tweets in reversed(bts_timeline):
         twt_id = tweets.id
         #if BTS tweet is newer than the last time bot tweeted, go through nested loop to translate & post
-        if last_tweet_time < tweets.created_at:
+        if last_tweet_time < tweets.created_at and tweets.id != last_tweet:
             #if tweet is in English
             if tweets.lang == 'en':
                 print("tweet is in English - no translation needed")
@@ -38,12 +40,14 @@ def translate_BTS():
                     print(twt)
                     url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
                     api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
+                    last_tweet = tweets.id
                 #else, if no https link, post tweet text as-is
                 else:
                     twt = tweets.text
                     print(twt)
                     url = "https://twitter.com/BTS_twt/status/" + str(tweets.id)
                     api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
+                    last_tweet = tweets.id
             #if tweet is not in English, then run translation
             else:
                 print("creating BTS translation...")
@@ -96,11 +100,12 @@ def translate_BTS():
                     twt_trans = translator.translate(twt, src='ko', dest = 'en').text
                     #return tweet to normal and replace emoji/hashtags back from placeholders
                     twt = HREPL.sub(h_restore, twt_trans)
-                    twt = EREPL.sub(emoji_restore, twt_trans)
+                    twt = EREPL.sub(emoji_restore, twt)
                     #add emojis characters back to tweet
                     twt = emoji.emojize(twt)
                     url = ("https://twitter.com/BTS_twt/status/" + str(tweets.id))
                     api.update_status('@BTS_twt #BotTranslation: ' + twt, tweets.id, attachment_url= url)
+                    last_tweet = tweets.id
                     print(twt)
                     print("translated tweet - no problem!")
                 except Exception:
