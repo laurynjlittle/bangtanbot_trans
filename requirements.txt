@@ -18,7 +18,7 @@ oauthlib==3.1.0
 packaging==19.2
 pluggy==0.13.0
 pre-commit==1.18.3
-py==1.8.0
+py==1.10.0
 pyparsing==2.4.2
 PySocks==1.7.1
 PyYAML==5.1.2
